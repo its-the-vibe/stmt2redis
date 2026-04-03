@@ -1,0 +1,10 @@
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+
+lists:
+  starling: transactions:starling
+  amex: transactions:amex
+  monzo: transactions:monzo
+  monzo_flex: transactions:monzo-flex

@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+# config file (use config.example.yaml as a template)
+config.yaml
+
+# binary
+stmt2redis
+
 # Editor/IDE
 # .idea/
 # .vscode/
