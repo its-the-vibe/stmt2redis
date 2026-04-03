@@ -21,11 +21,11 @@ func TestStarlingParser(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
 	for _, rec := range records {
-		if !strings.Contains(rec, `"Date"`) {
-			t.Errorf("expected record to contain Date key, got: %s", rec)
+		if !strings.Contains(rec, `"date"`) {
+			t.Errorf("expected record to contain date key, got: %s", rec)
 		}
-		if !strings.Contains(rec, `"Amount (GBP)"`) {
-			t.Errorf("expected record to contain Amount (GBP) key, got: %s", rec)
+		if !strings.Contains(rec, `"amount_gbp"`) {
+			t.Errorf("expected record to contain amount_gbp key, got: %s", rec)
 		}
 	}
 }
@@ -44,11 +44,11 @@ func TestAmexParser(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
 	for _, rec := range records {
-		if !strings.Contains(rec, `"Description"`) {
-			t.Errorf("expected record to contain Description key, got: %s", rec)
+		if !strings.Contains(rec, `"description"`) {
+			t.Errorf("expected record to contain description key, got: %s", rec)
 		}
-		if !strings.Contains(rec, `"Category"`) {
-			t.Errorf("expected record to contain Category key, got: %s", rec)
+		if !strings.Contains(rec, `"category"`) {
+			t.Errorf("expected record to contain category key, got: %s", rec)
 		}
 	}
 }
@@ -67,8 +67,8 @@ tx_002,2024-01-15,14:00:00,faster_payment,Salary,,Income,200000,GBP,200000,GBP,,
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
 	for _, rec := range records {
-		if !strings.Contains(rec, `"Transaction ID"`) {
-			t.Errorf("expected record to contain Transaction ID key, got: %s", rec)
+		if !strings.Contains(rec, `"transaction_id"`) {
+			t.Errorf("expected record to contain transaction_id key, got: %s", rec)
 		}
 	}
 }
@@ -85,8 +85,8 @@ flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,
 	if len(records) != 1 {
 		t.Fatalf("expected 1 record, got %d", len(records))
 	}
-	if !strings.Contains(records[0], `"Transaction ID"`) {
-		t.Errorf("expected record to contain Transaction ID key, got: %s", records[0])
+	if !strings.Contains(records[0], `"transaction_id"`) {
+		t.Errorf("expected record to contain transaction_id key, got: %s", records[0])
 	}
 }
 
@@ -100,5 +100,38 @@ func TestParserEmptyCSV(t *testing.T) {
 	}
 	if len(records) != 0 {
 		t.Fatalf("expected 0 records, got %d", len(records))
+	}
+}
+
+func TestSanitiseKey(t *testing.T) {
+	cases := []struct {
+		input string
+		want  string
+	}{
+		{"Date", "date"},
+		{"Counter Party", "counter_party"},
+		{"Amount (GBP)", "amount_gbp"},
+		{"Balance (GBP)", "balance_gbp"},
+		{"Transaction ID", "transaction_id"},
+		{"Notes and #tags", "notes_and_tags"},
+		{"Town/City", "town_city"},
+		{"Spending Category", "spending_category"},
+		// multiple consecutive non-alpha chars collapse to a single underscore
+		{"foo   bar", "foo_bar"},
+		{"foo!!!bar", "foo_bar"},
+		// leading and trailing non-alpha chars are stripped
+		{"(amount)", "amount"},
+		{"  leading", "leading"},
+		{"trailing  ", "trailing"},
+		// already sanitised input is unchanged
+		{"already_clean", "already_clean"},
+		// purely non-alpha input
+		{"123", ""},
+	}
+	for _, tc := range cases {
+		got := parser.SanitiseKey(tc.input)
+		if got != tc.want {
+			t.Errorf("SanitiseKey(%q) = %q, want %q", tc.input, got, tc.want)
+		}
 	}
 }

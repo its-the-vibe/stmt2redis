@@ -6,8 +6,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 )
+
+var nonAlpha = regexp.MustCompile(`[^a-z]+`)
+
+// SanitiseKey normalises a CSV column heading or JSON key to lowercase with
+// all non-alphabetic characters (including spaces) replaced by underscores.
+// Consecutive non-alphabetic characters are collapsed into a single underscore,
+// and leading/trailing underscores are removed.
+func SanitiseKey(s string) string {
+	return strings.Trim(nonAlpha.ReplaceAllString(strings.ToLower(s), "_"), "_")
+}
 
 // Parser converts CSV rows into JSON-encoded transaction records.
 type Parser interface {
@@ -22,7 +33,7 @@ func rowToJSON(headers, row []string) (string, error) {
 	}
 	record := make(map[string]string, len(headers))
 	for i, h := range headers {
-		record[strings.TrimSpace(h)] = strings.TrimSpace(row[i])
+		record[SanitiseKey(h)] = strings.TrimSpace(row[i])
 	}
 	b, err := json.Marshal(record)
 	if err != nil {
