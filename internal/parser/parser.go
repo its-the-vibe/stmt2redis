@@ -8,6 +8,7 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var nonAlpha = regexp.MustCompile(`[^a-z]+`)
@@ -26,25 +27,28 @@ type Parser interface {
 	Parse(r io.Reader) ([]string, error)
 }
 
-// rowToJSON maps CSV headers to row values and marshals the result to JSON.
-func rowToJSON(headers, row []string) (string, error) {
-	if len(headers) != len(row) {
-		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
-	}
-	record := make(map[string]string, len(headers))
-	for i, h := range headers {
-		record[SanitiseKey(h)] = strings.TrimSpace(row[i])
-	}
-	b, err := json.Marshal(record)
+
+// reformatDateDDMMYYYY converts a date string in DD/MM/YYYY format to
+// YYYY-MM-DD. If the input is not in DD/MM/YYYY format the original value is
+// returned unchanged.
+func reformatDateDDMMYYYY(s string) string {
+	t, err := time.Parse("02/01/2006", s)
 	if err != nil {
-		return "", fmt.Errorf("marshalling record: %w", err)
+		return s
 	}
-	return string(b), nil
+	return t.Format("2006-01-02")
 }
 
 // parseCSV is a generic CSV parser that converts every data row (after the
 // header) into a JSON string using the column headers as keys.
 func parseCSV(r io.Reader) ([]string, error) {
+	return parseCSVWithTransform(r, nil)
+}
+
+// parseCSVWithTransform is like parseCSV but applies an optional transform
+// function to each record map before marshalling it to JSON.  A nil transform
+// is a no-op.
+func parseCSVWithTransform(r io.Reader, transform func(map[string]string)) ([]string, error) {
 	cr := csv.NewReader(r)
 	cr.TrimLeadingSpace = true
 
@@ -62,11 +66,31 @@ func parseCSV(r io.Reader) ([]string, error) {
 		if err != nil {
 			return nil, fmt.Errorf("reading CSV row: %w", err)
 		}
-		j, err := rowToJSON(headers, row)
+		j, err := rowToJSONWithTransform(headers, row, transform)
 		if err != nil {
 			return nil, err
 		}
 		results = append(results, j)
 	}
 	return results, nil
+}
+
+// rowToJSONWithTransform maps CSV headers to row values, applies an optional
+// transform to the resulting map, then marshals it to JSON.
+func rowToJSONWithTransform(headers, row []string, transform func(map[string]string)) (string, error) {
+	if len(headers) != len(row) {
+		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
+	}
+	record := make(map[string]string, len(headers))
+	for i, h := range headers {
+		record[SanitiseKey(h)] = strings.TrimSpace(row[i])
+	}
+	if transform != nil {
+		transform(record)
+	}
+	b, err := json.Marshal(record)
+	if err != nil {
+		return "", fmt.Errorf("marshalling record: %w", err)
+	}
+	return string(b), nil
 }

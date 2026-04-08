@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -26,6 +27,31 @@ func TestStarlingParser(t *testing.T) {
 		}
 		if !strings.Contains(rec, `"amount_gbp"`) {
 			t.Errorf("expected record to contain amount_gbp key, got: %s", rec)
+		}
+	}
+}
+
+func TestStarlingParserDateReformat(t *testing.T) {
+	// Starling exports dates as DD/MM/YYYY; the parser must convert them to
+	// YYYY-MM-DD in the output JSON.
+	csv := `Date,Counter Party,Reference,Type,Amount (GBP),Balance (GBP),Spending Category,Notes
+21/03/2026,TESCO STORES,REF12345,FASTER PAYMENT,-12.50,1500.00,GROCERIES,weekly shop
+05/01/2025,AMAZON,REF67890,CARD PAYMENT,-29.99,1470.01,SHOPPING,
+`
+	p := parser.StarlingParser{}
+	records, err := p.Parse(strings.NewReader(csv))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(records) != 2 {
+		t.Fatalf("expected 2 records, got %d", len(records))
+	}
+
+	wantDates := []string{"2026-03-21", "2025-01-05"}
+	for i, rec := range records {
+		want := fmt.Sprintf(`"date":"%s"`, wantDates[i])
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
 	}
 }
