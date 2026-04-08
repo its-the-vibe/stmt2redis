@@ -14,7 +14,7 @@ func TestStarlingParser(t *testing.T) {
 2024-01-16,AMAZON,REF67890,CARD PAYMENT,-29.99,1470.01,SHOPPING,
 `
 	p := parser.StarlingParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "statement.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -28,6 +28,9 @@ func TestStarlingParser(t *testing.T) {
 		if !strings.Contains(rec, `"amount_gbp"`) {
 			t.Errorf("expected record to contain amount_gbp key, got: %s", rec)
 		}
+		if !strings.Contains(rec, `"filename":"statement.csv"`) {
+			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
 	}
 }
 
@@ -39,7 +42,7 @@ func TestStarlingParserDateReformat(t *testing.T) {
 05/01/2025,AMAZON,REF67890,CARD PAYMENT,-29.99,1470.01,SHOPPING,
 `
 	p := parser.StarlingParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "statement.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -62,7 +65,7 @@ func TestAmexParser(t *testing.T) {
 02/01/2024,GYM MEMBERSHIP,40.00,Monthly,GYM,456 Fitness Rd,London,SW1A 2AA,UK,REF002,Health
 `
 	p := parser.AmexParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "amex.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -76,6 +79,9 @@ func TestAmexParser(t *testing.T) {
 		if !strings.Contains(rec, `"category"`) {
 			t.Errorf("expected record to contain category key, got: %s", rec)
 		}
+		if !strings.Contains(rec, `"filename":"amex.csv"`) {
+			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
 	}
 }
 
@@ -85,7 +91,7 @@ tx_001,2024-01-15,10:30:00,card_payment,Tesco,,Groceries,-1250,GBP,-1250,GBP,wee
 tx_002,2024-01-15,14:00:00,faster_payment,Salary,,Income,200000,GBP,200000,GBP,,,,,,,2000.00
 `
 	p := parser.MonzoParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "monzo.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -96,6 +102,9 @@ tx_002,2024-01-15,14:00:00,faster_payment,Salary,,Income,200000,GBP,200000,GBP,,
 		if !strings.Contains(rec, `"transaction_id"`) {
 			t.Errorf("expected record to contain transaction_id key, got: %s", rec)
 		}
+		if !strings.Contains(rec, `"filename":"monzo.csv"`) {
+			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
 	}
 }
 
@@ -104,7 +113,7 @@ func TestMonzoFlexParser(t *testing.T) {
 flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,,,,-999.00,
 `
 	p := parser.MonzoFlexParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "monzo_flex.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -114,13 +123,16 @@ flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,
 	if !strings.Contains(records[0], `"transaction_id"`) {
 		t.Errorf("expected record to contain transaction_id key, got: %s", records[0])
 	}
+	if !strings.Contains(records[0], `"filename":"monzo_flex.csv"`) {
+		t.Errorf("expected record to contain filename field, got: %s", records[0])
+	}
 }
 
 func TestParserEmptyCSV(t *testing.T) {
 	// CSV with only a header row produces no records.
 	csv := "Date,Counter Party,Reference,Type,Amount (GBP),Balance (GBP),Spending Category,Notes\n"
 	p := parser.StarlingParser{}
-	records, err := p.Parse(strings.NewReader(csv))
+	records, err := p.Parse(strings.NewReader(csv), "statement.csv")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

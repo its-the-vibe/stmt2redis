@@ -24,7 +24,8 @@ func SanitiseKey(s string) string {
 // Parser converts CSV rows into JSON-encoded transaction records.
 type Parser interface {
 	// Parse reads all records from r and returns a slice of JSON-encoded strings.
-	Parse(r io.Reader) ([]string, error)
+	// filename is the base name of the source file and is included in each record.
+	Parse(r io.Reader, filename string) ([]string, error)
 }
 
 
@@ -41,14 +42,14 @@ func reformatDateDDMMYYYY(s string) string {
 
 // parseCSV is a generic CSV parser that converts every data row (after the
 // header) into a JSON string using the column headers as keys.
-func parseCSV(r io.Reader) ([]string, error) {
-	return parseCSVWithTransform(r, nil)
+func parseCSV(r io.Reader, filename string) ([]string, error) {
+	return parseCSVWithTransform(r, filename, nil)
 }
 
 // parseCSVWithTransform is like parseCSV but applies an optional transform
 // function to each record map before marshalling it to JSON.  A nil transform
 // is a no-op.
-func parseCSVWithTransform(r io.Reader, transform func(map[string]string)) ([]string, error) {
+func parseCSVWithTransform(r io.Reader, filename string, transform func(map[string]string)) ([]string, error) {
 	cr := csv.NewReader(r)
 	cr.TrimLeadingSpace = true
 
@@ -66,7 +67,7 @@ func parseCSVWithTransform(r io.Reader, transform func(map[string]string)) ([]st
 		if err != nil {
 			return nil, fmt.Errorf("reading CSV row: %w", err)
 		}
-		j, err := rowToJSONWithTransform(headers, row, transform)
+		j, err := rowToJSONWithTransform(headers, row, filename, transform)
 		if err != nil {
 			return nil, err
 		}
@@ -76,8 +77,9 @@ func parseCSVWithTransform(r io.Reader, transform func(map[string]string)) ([]st
 }
 
 // rowToJSONWithTransform maps CSV headers to row values, applies an optional
-// transform to the resulting map, then marshals it to JSON.
-func rowToJSONWithTransform(headers, row []string, transform func(map[string]string)) (string, error) {
+// transform to the resulting map, then marshals it to JSON. filename is added
+// to the record as the "filename" field.
+func rowToJSONWithTransform(headers, row []string, filename string, transform func(map[string]string)) (string, error) {
 	if len(headers) != len(row) {
 		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
 	}
@@ -88,6 +90,7 @@ func rowToJSONWithTransform(headers, row []string, transform func(map[string]str
 	if transform != nil {
 		transform(record)
 	}
+	record["filename"] = filename
 	b, err := json.Marshal(record)
 	if err != nil {
 		return "", fmt.Errorf("marshalling record: %w", err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/its-the-vibe/stmt2redis/internal/config"
@@ -95,7 +96,7 @@ func runPush(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parse CSV into JSON records.
-	records, err := p.Parse(f)
+	records, err := p.Parse(f, filepath.Base(csvFile))
 	if err != nil {
 		return fmt.Errorf("parsing CSV: %w", err)
 	}

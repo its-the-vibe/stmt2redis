@@ -10,8 +10,8 @@ import "io"
 type MonzoParser struct{}
 
 // Parse implements Parser for Monzo CSV files.
-func (MonzoParser) Parse(r io.Reader) ([]string, error) {
-	return parseCSV(r)
+func (MonzoParser) Parse(r io.Reader, filename string) ([]string, error) {
+	return parseCSV(r, filename)
 }
 
 // MonzoFlexParser parses Monzo Flex bank statement CSVs.
@@ -20,6 +20,6 @@ func (MonzoParser) Parse(r io.Reader) ([]string, error) {
 type MonzoFlexParser struct{}
 
 // Parse implements Parser for Monzo Flex CSV files.
-func (MonzoFlexParser) Parse(r io.Reader) ([]string, error) {
-	return parseCSV(r)
+func (MonzoFlexParser) Parse(r io.Reader, filename string) ([]string, error) {
+	return parseCSV(r, filename)
 }
