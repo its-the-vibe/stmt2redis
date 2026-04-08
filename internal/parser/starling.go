@@ -14,8 +14,8 @@ type StarlingParser struct{}
 
 // Parse implements Parser for Starling CSV files.
 // Date values in DD/MM/YYYY format are converted to YYYY-MM-DD.
-func (StarlingParser) Parse(r io.Reader) ([]string, error) {
-	return parseCSVWithTransform(r, func(record map[string]string) {
+func (StarlingParser) Parse(r io.Reader, filename string) ([]string, error) {
+	return parseCSVWithTransform(r, filename, func(record map[string]string) {
 		if v, ok := record["date"]; ok {
 			record["date"] = reformatDateDDMMYYYY(v)
 		}

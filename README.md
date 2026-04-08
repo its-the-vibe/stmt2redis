@@ -112,6 +112,21 @@ make lint
 make clean
 ```
 
+## JSON Output
+
+Each transaction is output as a JSON object with fields derived from the CSV columns (see [CSV Headers](#csv-headers) below). An additional `"filename"` field is always included, containing the base name of the source CSV file. For example:
+
+```json
+{
+  "date": "2026-03-21",
+  "counter_party": "Example Ltd",
+  "amount_gbp": "100.00",
+  "filename": "statement.csv"
+}
+```
+
+This field is present in both Redis and stdout output modes and can be used for data provenance and traceability when processing multiple files.
+
 ## CSV Headers
 
 **Starling:**
