@@ -119,6 +119,8 @@ make clean
 Date,Counter Party,Reference,Type,Amount (GBP),Balance (GBP),Spending Category,Notes
 ```
 
+> **Date handling:** Starling exports dates in `DD/MM/YYYY` format (e.g. `21/03/2026`). The parser automatically converts these to ISO `YYYY-MM-DD` format (e.g. `2026-03-21`) in the output JSON.
+
 **Amex:**
 ```
 Date,Description,Amount,Extended Details,Appears On Your Statement As,Address,Town/City,Postcode,Country,Reference,Category
