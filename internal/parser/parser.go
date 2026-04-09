@@ -59,7 +59,7 @@ func parseCSVWithTransform(r io.Reader, filename string, transform func(map[stri
 	}
 
 	var results []string
-	for {
+	for index := 0; ; index++ {
 		row, err := cr.Read()
 		if err == io.EOF {
 			break
@@ -67,7 +67,7 @@ func parseCSVWithTransform(r io.Reader, filename string, transform func(map[stri
 		if err != nil {
 			return nil, fmt.Errorf("reading CSV row: %w", err)
 		}
-		j, err := rowToJSONWithTransform(headers, row, filename, transform)
+		j, err := rowToJSONWithTransform(headers, row, filename, index, transform)
 		if err != nil {
 			return nil, err
 		}
@@ -78,8 +78,9 @@ func parseCSVWithTransform(r io.Reader, filename string, transform func(map[stri
 
 // rowToJSONWithTransform maps CSV headers to row values, applies an optional
 // transform to the resulting map, then marshals it to JSON. filename is added
-// to the record as the "filename" field.
-func rowToJSONWithTransform(headers, row []string, filename string, transform func(map[string]string)) (string, error) {
+// to the record as the "filename" field and index is added as the "index" field
+// representing the 0-based position of the record within the source CSV file.
+func rowToJSONWithTransform(headers, row []string, filename string, index int, transform func(map[string]string)) (string, error) {
 	if len(headers) != len(row) {
 		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
 	}
@@ -91,7 +92,13 @@ func rowToJSONWithTransform(headers, row []string, filename string, transform fu
 		transform(record)
 	}
 	record["filename"] = filename
-	b, err := json.Marshal(record)
+	// Build a mixed-type map so that "index" is encoded as a JSON number.
+	mixed := make(map[string]interface{}, len(record)+1)
+	for k, v := range record {
+		mixed[k] = v
+	}
+	mixed["index"] = index
+	b, err := json.Marshal(mixed)
 	if err != nil {
 		return "", fmt.Errorf("marshalling record: %w", err)
 	}
