@@ -21,7 +21,7 @@ func TestStarlingParser(t *testing.T) {
 	if len(records) != 2 {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
-	for _, rec := range records {
+	for i, rec := range records {
 		if !strings.Contains(rec, `"date"`) {
 			t.Errorf("expected record to contain date key, got: %s", rec)
 		}
@@ -30,6 +30,10 @@ func TestStarlingParser(t *testing.T) {
 		}
 		if !strings.Contains(rec, `"filename":"statement.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
+		want := fmt.Sprintf(`"index":"%d"`, i)
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
 	}
 }
@@ -72,7 +76,7 @@ func TestAmexParser(t *testing.T) {
 	if len(records) != 2 {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
-	for _, rec := range records {
+	for i, rec := range records {
 		if !strings.Contains(rec, `"description"`) {
 			t.Errorf("expected record to contain description key, got: %s", rec)
 		}
@@ -81,6 +85,10 @@ func TestAmexParser(t *testing.T) {
 		}
 		if !strings.Contains(rec, `"filename":"amex.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
+		want := fmt.Sprintf(`"index":"%d"`, i)
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
 	}
 }
@@ -98,12 +106,16 @@ tx_002,2024-01-15,14:00:00,faster_payment,Salary,,Income,200000,GBP,200000,GBP,,
 	if len(records) != 2 {
 		t.Fatalf("expected 2 records, got %d", len(records))
 	}
-	for _, rec := range records {
+	for i, rec := range records {
 		if !strings.Contains(rec, `"transaction_id"`) {
 			t.Errorf("expected record to contain transaction_id key, got: %s", rec)
 		}
 		if !strings.Contains(rec, `"filename":"monzo.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
+		}
+		want := fmt.Sprintf(`"index":"%d"`, i)
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
 	}
 }
@@ -125,6 +137,9 @@ flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,
 	}
 	if !strings.Contains(records[0], `"filename":"monzo_flex.csv"`) {
 		t.Errorf("expected record to contain filename field, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"index":"0"`) {
+		t.Errorf("expected record to contain index field with value \"0\", got: %s", records[0])
 	}
 }
 

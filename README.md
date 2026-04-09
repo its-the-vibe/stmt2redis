@@ -114,18 +114,24 @@ make clean
 
 ## JSON Output
 
-Each transaction is output as a JSON object with fields derived from the CSV columns (see [CSV Headers](#csv-headers) below). An additional `"filename"` field is always included, containing the base name of the source CSV file. For example:
+Each transaction is output as a JSON object with fields derived from the CSV columns (see [CSV Headers](#csv-headers) below). Two additional fields are always included:
+
+- `"filename"` – the base name of the source CSV file, useful for data provenance when processing multiple files.
+- `"index"` – the 0-based position of the record within the source CSV file (first data row is `0`), allowing downstream consumers to reconstruct the original order or detect missing/duplicate records.
+
+For example:
 
 ```json
 {
   "date": "2026-03-21",
   "counter_party": "Example Ltd",
   "amount_gbp": "100.00",
-  "filename": "statement.csv"
+  "filename": "statement.csv",
+  "index": "0"
 }
 ```
 
-This field is present in both Redis and stdout output modes and can be used for data provenance and traceability when processing multiple files.
+Both fields are present in Redis and stdout output modes.
 
 ## CSV Headers
 
