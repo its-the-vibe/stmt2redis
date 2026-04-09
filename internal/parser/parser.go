@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -79,7 +80,8 @@ func parseCSVWithTransform(r io.Reader, filename string, transform func(map[stri
 // rowToJSONWithTransform maps CSV headers to row values, applies an optional
 // transform to the resulting map, then marshals it to JSON. filename is added
 // to the record as the "filename" field and index is added as the "index" field
-// representing the 0-based position of the record within the source CSV file.
+// (as a string) representing the 0-based position of the record within the
+// source CSV file.
 func rowToJSONWithTransform(headers, row []string, filename string, index int, transform func(map[string]string)) (string, error) {
 	if len(headers) != len(row) {
 		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
@@ -92,13 +94,8 @@ func rowToJSONWithTransform(headers, row []string, filename string, index int, t
 		transform(record)
 	}
 	record["filename"] = filename
-	// Build a mixed-type map so that "index" is encoded as a JSON number.
-	mixed := make(map[string]interface{}, len(record)+1)
-	for k, v := range record {
-		mixed[k] = v
-	}
-	mixed["index"] = index
-	b, err := json.Marshal(mixed)
+	record["index"] = strconv.Itoa(index)
+	b, err := json.Marshal(record)
 	if err != nil {
 		return "", fmt.Errorf("marshalling record: %w", err)
 	}
