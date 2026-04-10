@@ -31,7 +31,7 @@ func TestStarlingParser(t *testing.T) {
 		if !strings.Contains(rec, `"filename":"statement.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
 		}
-		want := fmt.Sprintf(`"index":"%d"`, i)
+		want := fmt.Sprintf(`"index":%d`, i)
 		if !strings.Contains(rec, want) {
 			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
@@ -86,7 +86,7 @@ func TestAmexParser(t *testing.T) {
 		if !strings.Contains(rec, `"filename":"amex.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
 		}
-		want := fmt.Sprintf(`"index":"%d"`, i)
+		want := fmt.Sprintf(`"index":%d`, i)
 		if !strings.Contains(rec, want) {
 			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
@@ -113,7 +113,7 @@ tx_002,2024-01-15,14:00:00,faster_payment,Salary,,Income,200000,GBP,200000,GBP,,
 		if !strings.Contains(rec, `"filename":"monzo.csv"`) {
 			t.Errorf("expected record to contain filename field, got: %s", rec)
 		}
-		want := fmt.Sprintf(`"index":"%d"`, i)
+		want := fmt.Sprintf(`"index":%d`, i)
 		if !strings.Contains(rec, want) {
 			t.Errorf("record %d: expected %s in %s", i, want, rec)
 		}
@@ -138,8 +138,8 @@ flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,
 	if !strings.Contains(records[0], `"filename":"monzo_flex.csv"`) {
 		t.Errorf("expected record to contain filename field, got: %s", records[0])
 	}
-	if !strings.Contains(records[0], `"index":"0"`) {
-		t.Errorf("expected record to contain index field with value \"0\", got: %s", records[0])
+	if !strings.Contains(records[0], `"index":0`) {
+		t.Errorf("expected record to contain index field with value 0, got: %s", records[0])
 	}
 }
 

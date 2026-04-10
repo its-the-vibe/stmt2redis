@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -29,7 +28,6 @@ type Parser interface {
 	Parse(r io.Reader, filename string) ([]string, error)
 }
 
-
 // reformatDateDDMMYYYY converts a date string in DD/MM/YYYY format to
 // YYYY-MM-DD. If the input is not in DD/MM/YYYY format the original value is
 // returned unchanged.
@@ -50,7 +48,7 @@ func parseCSV(r io.Reader, filename string) ([]string, error) {
 // parseCSVWithTransform is like parseCSV but applies an optional transform
 // function to each record map before marshalling it to JSON.  A nil transform
 // is a no-op.
-func parseCSVWithTransform(r io.Reader, filename string, transform func(map[string]string)) ([]string, error) {
+func parseCSVWithTransform(r io.Reader, filename string, transform func(map[string]interface{})) ([]string, error) {
 	cr := csv.NewReader(r)
 	cr.TrimLeadingSpace = true
 
@@ -82,11 +80,11 @@ func parseCSVWithTransform(r io.Reader, filename string, transform func(map[stri
 // to the record as the "filename" field and index is added as the "index" field
 // (as a string) representing the 0-based position of the record within the
 // source CSV file.
-func rowToJSONWithTransform(headers, row []string, filename string, index int, transform func(map[string]string)) (string, error) {
+func rowToJSONWithTransform(headers, row []string, filename string, index int, transform func(map[string]interface{})) (string, error) {
 	if len(headers) != len(row) {
 		return "", fmt.Errorf("header count %d does not match row count %d", len(headers), len(row))
 	}
-	record := make(map[string]string, len(headers))
+	record := make(map[string]interface{}, len(headers))
 	for i, h := range headers {
 		record[SanitiseKey(h)] = strings.TrimSpace(row[i])
 	}
@@ -94,7 +92,7 @@ func rowToJSONWithTransform(headers, row []string, filename string, index int, t
 		transform(record)
 	}
 	record["filename"] = filename
-	record["index"] = strconv.Itoa(index)
+	record["index"] = index
 	b, err := json.Marshal(record)
 	if err != nil {
 		return "", fmt.Errorf("marshalling record: %w", err)

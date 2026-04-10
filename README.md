@@ -127,7 +127,7 @@ For example:
   "counter_party": "Example Ltd",
   "amount_gbp": "100.00",
   "filename": "statement.csv",
-  "index": "0"
+  "index": 0
 }
 ```
 
