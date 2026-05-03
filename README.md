@@ -1,5 +1,7 @@
 # stmt2redis
 
+[![CI](https://github.com/its-the-vibe/stmt2redis/actions/workflows/ci.yaml/badge.svg)](https://github.com/its-the-vibe/stmt2redis/actions/workflows/ci.yaml)
+
 A Go command-line utility that parses bank statement CSV files and streams each transaction as a JSON object into a Redis list for downstream processing.
 
 ## Supported CSV Types

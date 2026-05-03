@@ -112,3 +112,11 @@ func TestListKeyUnsupported(t *testing.T) {
 		t.Fatal("expected error for unsupported type, got nil")
 	}
 }
+
+func TestLoadInvalidYAML(t *testing.T) {
+	path := writeTempConfig(t, ":\tinvalid: yaml: content\n")
+	_, err := config.Load(path)
+	if err == nil {
+		t.Fatal("expected error for invalid YAML, got nil")
+	}
+}
