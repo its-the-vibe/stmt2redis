@@ -156,6 +156,16 @@ func TestParserEmptyCSV(t *testing.T) {
 	}
 }
 
+func TestParserMismatchedRow(t *testing.T) {
+	// A data row with more fields than the header should return an error.
+	csv := "Date,Counter Party\n2024-01-15,TESCO,extra_field\n"
+	p := parser.StarlingParser{}
+	_, err := p.Parse(strings.NewReader(csv), "statement.csv")
+	if err == nil {
+		t.Fatal("expected error for mismatched header/row count, got nil")
+	}
+}
+
 func TestSanitiseKey(t *testing.T) {
 	cases := []struct {
 		input string
