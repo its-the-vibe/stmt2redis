@@ -39,10 +39,10 @@ func reformatDateDDMMYYYY(s string) string {
 	return t.Format("2006-01-02")
 }
 
-// parseCSV is a generic CSV parser that converts every data row (after the
-// header) into a JSON string using the column headers as keys.
-func parseCSV(r io.Reader, filename string) ([]string, error) {
-	return parseCSVWithTransform(r, filename, nil)
+func transformDate(record map[string]interface{}, key string) {
+	if v, ok := record[key].(string); ok {
+		record[key] = reformatDateDDMMYYYY(v)
+	}
 }
 
 // parseCSVWithTransform is like parseCSV but applies an optional transform
