@@ -11,5 +11,9 @@ type AmexParser struct{}
 
 // Parse implements Parser for Amex CSV files.
 func (AmexParser) Parse(r io.Reader, filename string) ([]string, error) {
-	return parseCSV(r, filename)
+	return parseCSVWithTransform(r, filename, func(record map[string]interface{}) {
+		if v, ok := record["date"].(string); ok {
+			record["date"] = reformatDateDDMMYYYY(v)
+		}
+	})
 }
