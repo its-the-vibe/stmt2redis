@@ -143,6 +143,43 @@ flex_001,2024-02-01,09:00:00,flex,Apple Store,,Shopping,-99900,GBP,-99900,GBP,,,
 	}
 }
 
+func TestSantanderParser(t *testing.T) {
+	tsv := `Date|Description|Money In|Money Out|Balance
+2025-12-10|Balance brought forward from previous statement|||1972.22
+2025-12-10|DIRECT DEBIT PAYMENT TO ID MOBILE LIMITED REF XXXXXXX/001, MANDATE NO 1234||2.00|1970.22
+2025-12-11|DIRECT DEBIT PAYMENT TO O2 REF XXXXXXX, MANDATE NO 1234||16.85|1953.37
+`
+	p := parser.SantanderParser{}
+	records, err := p.Parse(strings.NewReader(tsv), "santander_statement.tsv")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(records) != 3 {
+		t.Fatalf("expected 3 records, got %d", len(records))
+	}
+	if !strings.Contains(records[0], `"date":"2025-12-10"`) {
+		t.Errorf("expected date field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"money_in":""`) {
+		t.Errorf("expected empty money_in in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[1], `"money_out":"2.00"`) {
+		t.Errorf("expected money_out in second record, got: %s", records[1])
+	}
+	if !strings.Contains(records[2], `"balance":"1953.37"`) {
+		t.Errorf("expected balance in third record, got: %s", records[2])
+	}
+	if !strings.Contains(records[0], `"filename":"santander_statement.tsv"`) {
+		t.Errorf("expected filename field, got: %s", records[0])
+	}
+	for i, rec := range records {
+		want := fmt.Sprintf(`"index":%d`, i)
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
+		}
+	}
+}
+
 func TestParserEmptyCSV(t *testing.T) {
 	// CSV with only a header row produces no records.
 	csv := "Date,Counter Party,Reference,Type,Amount (GBP),Balance (GBP),Spending Category,Notes\n"

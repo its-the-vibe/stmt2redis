@@ -8,3 +8,4 @@ lists:
   amex: transactions:amex
   monzo: transactions:monzo
   monzo_flex: transactions:monzo-flex
+  santander: transactions:santander
