@@ -160,7 +160,7 @@ func TestSantanderParser(t *testing.T) {
 	if !strings.Contains(records[0], `"date":"2025-12-10"`) {
 		t.Errorf("expected date field in first record, got: %s", records[0])
 	}
-	if !strings.Contains(records[0], `"money_in":""`) {
+	if !strings.Contains(records[0], `"money_in":"0"`) {
 		t.Errorf("expected empty money_in in first record, got: %s", records[0])
 	}
 	if !strings.Contains(records[1], `"money_out":"2.00"`) {

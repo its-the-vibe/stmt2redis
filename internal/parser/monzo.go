@@ -28,11 +28,6 @@ func parseMonzoCSV(r io.Reader, filename string, stmtType string) ([]string, err
 	return parseCSVWithTransform(r, filename, func(record map[string]interface{}) {
 		transformDate(record, "date")
 		record["stmt_type"] = stmtType
-		if record["money_in"].(string) == "" {
-			record["money_in"] = "0"
-		}
-		if record["money_out"].(string) == "" {
-			record["money_out"] = "0"
-		}
+		transformMoney(record)
 	})
 }

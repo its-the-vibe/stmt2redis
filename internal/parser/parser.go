@@ -45,6 +45,15 @@ func transformDate(record map[string]interface{}, key string) {
 	}
 }
 
+func transformMoney(record map[string]interface{}) {
+	if record["money_in"].(string) == "" {
+		record["money_in"] = "0"
+	}
+	if record["money_out"].(string) == "" {
+		record["money_out"] = "0"
+	}
+}
+
 // parseCSVWithTransform is like parseCSV but applies an optional transform
 // function to each record map before marshalling it to JSON.  A nil transform
 // is a no-op.

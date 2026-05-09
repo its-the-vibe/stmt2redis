@@ -11,5 +11,7 @@ type SantanderParser struct{}
 
 // Parse implements Parser for Santander TSV files.
 func (SantanderParser) Parse(r io.Reader, filename string) ([]string, error) {
-	return parseDelimitedWithTransform(r, filename, '|', nil)
+	return parseDelimitedWithTransform(r, filename, '|', func(record map[string]interface{}) {
+		transformMoney(record)
+	})
 }
