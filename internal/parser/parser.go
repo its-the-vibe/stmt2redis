@@ -49,7 +49,16 @@ func transformDate(record map[string]interface{}, key string) {
 // function to each record map before marshalling it to JSON.  A nil transform
 // is a no-op.
 func parseCSVWithTransform(r io.Reader, filename string, transform func(map[string]interface{})) ([]string, error) {
+	return parseDelimitedWithTransform(r, filename, ',', transform)
+}
+
+// parseDelimitedWithTransform is a delimiter-configurable variant of
+// parseCSVWithTransform, allowing statement parsers to read non-comma formats
+// (for example Santander's pipe-delimited TSV exports) while sharing the same
+// row-to-JSON mapping and optional record transform behavior.
+func parseDelimitedWithTransform(r io.Reader, filename string, delimiter rune, transform func(map[string]interface{})) ([]string, error) {
 	cr := csv.NewReader(r)
+	cr.Comma = delimiter
 	cr.TrimLeadingSpace = true
 
 	headers, err := cr.Read()

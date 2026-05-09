@@ -12,6 +12,7 @@ A Go command-line utility that parses bank statement CSV files and streams each 
 | `amex`      | American Express        |
 | `monzo`     | Monzo                   |
 | `monzo-flex`| Monzo Flex              |
+| `santander` | Santander               |
 
 ## Prerequisites
 
@@ -49,6 +50,7 @@ lists:
   amex: transactions:amex
   monzo: transactions:monzo
   monzo_flex: transactions:monzo-flex
+  santander: transactions:santander
 ```
 
 ### 3. Set up your environment file
@@ -74,6 +76,7 @@ REDIS_PASSWORD=your_redis_password_here
 ./stmt2redis push --type amex     --file amex.csv
 ./stmt2redis push --type monzo    --file monzo.csv
 ./stmt2redis push --type monzo-flex --file monzo_flex.csv
+./stmt2redis push --type santander --file santander_statement.tsv
 ```
 
 ### Print JSON to stdout (no Redis required)
@@ -92,7 +95,7 @@ REDIS_PASSWORD=your_redis_password_here
 
 | Flag         | Short | Default       | Description                                         |
 |--------------|-------|---------------|-----------------------------------------------------|
-| `--type`     | `-t`  | *(required)*  | CSV type: `starling`, `amex`, `monzo`, `monzo-flex` |
+| `--type`     | `-t`  | *(required)*  | CSV type: `starling`, `amex`, `monzo`, `monzo-flex`, `santander` |
 | `--file`     | `-f`  | *(required)*  | Path to the CSV file                                |
 | `--stdout`   |       | `false`       | Print JSON to stdout instead of pushing to Redis    |
 | `--config`   |       | `config.yaml` | Path to the YAML config file                        |
@@ -152,6 +155,11 @@ Date,Description,Amount,Extended Details,Appears On Your Statement As,Address,To
 **Monzo / Monzo Flex:**
 ```
 Transaction ID,Date,Time,Type,Name,Emoji,Category,Amount,Currency,Local amount,Local currency,Notes and #tags,Address,Receipt,Description,Category split,Money Out,Money In
+```
+
+**Santander (TSV):**
+```
+Date|Description|Money In|Money Out|Balance
 ```
 
 ## Security

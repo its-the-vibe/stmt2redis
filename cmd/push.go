@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
+
 	"github.com/its-the-vibe/stmt2redis/internal/config"
 	"github.com/its-the-vibe/stmt2redis/internal/parser"
 	"github.com/its-the-vibe/stmt2redis/internal/redisclient"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -29,7 +30,7 @@ and either RPUSHes it to the configured Redis list or prints it to stdout.`,
 }
 
 func init() {
-	pushCmd.Flags().StringVarP(&csvType, "type", "t", "", "CSV type: starling, amex, monzo, monzo-flex (required)")
+	pushCmd.Flags().StringVarP(&csvType, "type", "t", "", "CSV type: starling, amex, monzo, monzo-flex, santander (required)")
 	pushCmd.Flags().StringVarP(&csvFile, "file", "f", "", "path to the CSV file (required)")
 	pushCmd.Flags().BoolVar(&stdoutOnly, "stdout", false, "print JSON to stdout instead of publishing to Redis")
 	pushCmd.Flags().StringVar(&envFile, "env-file", ".env", ".env file path")
@@ -51,8 +52,10 @@ func newParser(csvType string) (parser.Parser, error) {
 		return parser.MonzoParser{}, nil
 	case "monzo-flex":
 		return parser.MonzoFlexParser{}, nil
+	case "santander":
+		return parser.SantanderParser{}, nil
 	default:
-		return nil, fmt.Errorf("unsupported CSV type %q: must be one of starling, amex, monzo, monzo-flex", csvType)
+		return nil, fmt.Errorf("unsupported CSV type %q: must be one of starling, amex, monzo, monzo-flex, santander", csvType)
 	}
 }
 
