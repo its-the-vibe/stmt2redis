@@ -6,11 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
+
 	"github.com/its-the-vibe/stmt2redis/internal/config"
 	"github.com/its-the-vibe/stmt2redis/internal/parser"
 	"github.com/its-the-vibe/stmt2redis/internal/redisclient"
-	"github.com/joho/godotenv"
-	"github.com/spf13/cobra"
 )
 
 var (
