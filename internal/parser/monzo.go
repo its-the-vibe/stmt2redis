@@ -11,10 +11,7 @@ type MonzoParser struct{}
 
 // Parse implements Parser for Monzo CSV files.
 func (MonzoParser) Parse(r io.Reader, filename string) ([]string, error) {
-	return parseCSVWithTransform(r, filename, func(record map[string]interface{}) {
-		transformDate(record, "date")
-		record["stmt_type"] = "monzo"
-	})
+	return parseMonzoCSV(r, filename, "monzo")
 }
 
 // MonzoFlexParser parses Monzo Flex bank statement CSVs.
@@ -24,9 +21,18 @@ type MonzoFlexParser struct{}
 
 // Parse implements Parser for Monzo Flex CSV files.
 func (MonzoFlexParser) Parse(r io.Reader, filename string) ([]string, error) {
+	return parseMonzoCSV(r, filename, "monzo-flex")
+}
+
+func parseMonzoCSV(r io.Reader, filename string, stmtType string) ([]string, error) {
 	return parseCSVWithTransform(r, filename, func(record map[string]interface{}) {
 		transformDate(record, "date")
-		record["stmt_type"] = "monzo-flex"
+		record["stmt_type"] = stmtType
+		if record["money_in"].(string) == "" {
+			record["money_in"] = "0"
+		}
+		if record["money_out"].(string) == "" {
+			record["money_out"] = "0"
+		}
 	})
-
 }
