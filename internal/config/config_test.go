@@ -20,6 +20,7 @@ lists:
   monzo: transactions:monzo
   monzo_flex: transactions:monzo-flex
   santander: transactions:santander
+  sumup: transactions:sumup
 `
 
 func writeTempConfig(t *testing.T, content string) string {
@@ -89,6 +90,7 @@ func TestListKey(t *testing.T) {
 		{"monzo", "transactions:monzo"},
 		{"monzo-flex", "transactions:monzo-flex"},
 		{"santander", "transactions:santander"},
+		{"sumup", "transactions:sumup"},
 	}
 
 	for _, tt := range tests {

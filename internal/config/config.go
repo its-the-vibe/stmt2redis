@@ -22,6 +22,7 @@ type ListsConfig struct {
 	Monzo     string `yaml:"monzo"`
 	MonzoFlex string `yaml:"monzo_flex"`
 	Santander string `yaml:"santander"`
+	SumUp     string `yaml:"sumup"`
 }
 
 // Config is the top-level configuration structure.
@@ -65,6 +66,8 @@ func (c *Config) ListKey(csvType string) (string, error) {
 		return c.Lists.MonzoFlex, nil
 	case "santander":
 		return c.Lists.Santander, nil
+	case "sumup":
+		return c.Lists.SumUp, nil
 	default:
 		return "", fmt.Errorf("unsupported CSV type %q", csvType)
 	}

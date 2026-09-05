@@ -13,6 +13,7 @@ A Go command-line utility that parses bank statement CSV files and streams each 
 | `monzo`     | Monzo                   |
 | `monzo-flex`| Monzo Flex              |
 | `santander` | Santander               |
+| `sumup`     | SumUp                   |
 
 ## Prerequisites
 
@@ -51,6 +52,7 @@ lists:
   monzo: transactions:monzo
   monzo_flex: transactions:monzo-flex
   santander: transactions:santander
+  sumup: transactions:sumup
 ```
 
 ### 3. Set up your environment file
@@ -77,6 +79,7 @@ REDIS_PASSWORD=your_redis_password_here
 ./stmt2redis push --type monzo    --file monzo.csv
 ./stmt2redis push --type monzo-flex --file monzo_flex.csv
 ./stmt2redis push --type santander --file santander_statement.tsv
+./stmt2redis push --type sumup --file sumup_statement.csv
 ```
 
 ### Print JSON to stdout (no Redis required)
@@ -95,7 +98,7 @@ REDIS_PASSWORD=your_redis_password_here
 
 | Flag         | Short | Default       | Description                                         |
 |--------------|-------|---------------|-----------------------------------------------------|
-| `--type`     | `-t`  | *(required)*  | CSV type: `starling`, `amex`, `monzo`, `monzo-flex`, `santander` |
+| `--type`     | `-t`  | *(required)*  | CSV type: `starling`, `amex`, `monzo`, `monzo-flex`, `santander`, `sumup` |
 | `--file`     | `-f`  | *(required)*  | Path to the CSV file                                |
 | `--stdout`   |       | `false`       | Print JSON to stdout instead of pushing to Redis    |
 | `--config`   |       | `config.yaml` | Path to the YAML config file                        |
@@ -160,6 +163,11 @@ Transaction ID,Date,Time,Type,Name,Emoji,Category,Amount,Currency,Local amount,L
 **Santander (TSV):**
 ```
 Date|Description|Money In|Money Out|Balance
+```
+
+**SumUp (pipe-delimited):**
+```
+Date|Reference|Type|Amount|Description
 ```
 
 ## Security

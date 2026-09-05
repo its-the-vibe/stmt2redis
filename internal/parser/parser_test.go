@@ -180,6 +180,54 @@ func TestSantanderParser(t *testing.T) {
 	}
 }
 
+func TestSumUpParser(t *testing.T) {
+	csv := `Date|Reference|Type|Amount|Description
+2026-01-10|SU-REF-001|payment|25.00|Coffee Shop
+2026-01-11|SU-REF-002|refund|-10.00|Book Store
+`
+	p := parser.SumUpParser{}
+	records, err := p.Parse(strings.NewReader(csv), "sumup_statement.csv")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(records) != 2 {
+		t.Fatalf("expected 2 records, got %d", len(records))
+	}
+	if !strings.Contains(records[0], `"date":"2026-01-10"`) {
+		t.Errorf("expected date field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"reference":"SU-REF-001"`) {
+		t.Errorf("expected reference field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"type":"payment"`) {
+		t.Errorf("expected type field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"amount":"25.00"`) {
+		t.Errorf("expected amount field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"description":"Coffee Shop"`) {
+		t.Errorf("expected description field in first record, got: %s", records[0])
+	}
+	if !strings.Contains(records[0], `"filename":"sumup_statement.csv"`) {
+		t.Errorf("expected filename field, got: %s", records[0])
+	}
+	for i, rec := range records {
+		want := fmt.Sprintf(`"index":%d`, i)
+		if !strings.Contains(rec, want) {
+			t.Errorf("record %d: expected %s in %s", i, want, rec)
+		}
+	}
+}
+
+func TestSumUpParserMismatchedRow(t *testing.T) {
+	csv := "Date|Reference|Type|Amount|Description\n2026-01-10|SU-REF-001|payment|25.00\n"
+	p := parser.SumUpParser{}
+	_, err := p.Parse(strings.NewReader(csv), "sumup_statement.csv")
+	if err == nil {
+		t.Fatal("expected error for mismatched header/row count, got nil")
+	}
+}
+
 func TestParserEmptyCSV(t *testing.T) {
 	// CSV with only a header row produces no records.
 	csv := "Date,Counter Party,Reference,Type,Amount (GBP),Balance (GBP),Spending Category,Notes\n"
