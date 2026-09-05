@@ -165,7 +165,7 @@ Transaction ID,Date,Time,Type,Name,Emoji,Category,Amount,Currency,Local amount,L
 Date|Description|Money In|Money Out|Balance
 ```
 
-**SumUp:**
+**SumUp (pipe-delimited):**
 ```
 Date|Reference|Type|Amount|Description
 ```
